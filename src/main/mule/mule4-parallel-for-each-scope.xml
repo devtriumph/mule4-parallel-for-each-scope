@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <flow name="mule4-parallel-for-each-scope-flow" doc:id="24afb4f7-b511-4855-94c2-65651bf55897" >
+        <http:listener doc:name="GET:/parallelForEach" doc:id="7d400f5e-2783-43cc-ba52-3ff8e342a066" config-ref="HTTP_Listener_config" path="/parallelForEach"/>
+        <set-payload value='#[["1","2","3","4"]]' doc:name='["1","2","3","4"]' doc:id="17571c98-5bf5-402f-80f3-08e7d59af7e2" />
+        <parallel-foreach doc:name="Parallel For Each" doc:id="4122f834-8416-4296-986b-75b8efa82ffe" collection="#[payload]">
+            <validation:is-number doc:name="Check Is Number" doc:id="74c19d71-4ef0-481f-83db-45a186c4bc54" value="#[payload]" numberType="INTEGER" />
+            <ee:transform doc:name="Set Payload" doc:id="b59a6027-cf4c-4ce8-adc8-f5c6313ad145" >
+                <ee:message >
+                    <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+                </ee:message>
+            </ee:transform>
+            <logger level="INFO" doc:name="Log Payload" doc:id="6f523e7d-d16e-451a-9675-74fb1c7999d0" message="Time : #[now()] and Payload #[payload]"/>
+        </parallel-foreach>
+        <ee:transform doc:name="Set Response" doc:id="b90a5014-bb64-4579-a1ed-4c0daab11a22" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+flatten(payload..payload)]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>
